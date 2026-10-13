@@ -20,7 +20,9 @@ footer{padding:30px;text-align:center;color:#9ab0c6;border-top:1px solid #33475d
 <nav id="nav"><button class="active" data-tab="weeks">강의록 요약</button><button data-tab="exam">시험 대비</button><button data-tab="quiz">실전 퀴즈</button><button data-tab="cards">플래시카드</button><button data-tab="tutor">AI 교수·대화 피드백</button><button data-tab="record">학습 기록</button></nav>
 <section id="weeks" class="active"><h2>주차별 강의록 요약</h2><p class="muted">강의 구성에 맞춘 핵심 개념 요약입니다. 교수자가 실제 출제를 예고했다는 뜻은 아닙니다.</p><div id="weekgrid" class="grid"></div></section>
 <section id="exam"><h2>시험 대비 핵심 정리</h2><div id="examgrid" class="grid"></div><div class="card"><h3>학습 전략</h3><p>① 개념을 자신의 말로 설명 → ② 수식의 변수 의미와 계산 과정 확인 → ③ 실습 코드의 입력·출력 설명 → ④ 오답 반복. A 우선순위는 계산과 개념 연결을 먼저 학습할 추천 영역입니다.</p></div></section>
-<section id="quiz"><h2>실전 랜덤 퀴즈</h2><p class="muted">문제은행에서 매번 무작위로 뽑고 보기 순서도 섞습니다. 정답 제출 뒤 즉시 피드백하며, 틀린 문제를 우선 복습할 수 있습니다.</p><div class="row"><select id="filter"><option value="all">전 범위</option></select><select id="qmode"><option value="all">전체 문제</option><option value="wrong">틀린 문제 우선</option></select><button id="newq" class="mainbtn">새 문제</button></div><div id="question" class="card"></div><p id="qstatus" class="muted"></p></section>
+<section id="quiz"><h2>실전 랜덤 퀴즈</h2><p class="muted">문제은행에서 매번 무작위로 뽑고 보기 순서도 섞습니다. 정답 제출 뒤 즉시 피드백하며, 틀린 문제를 우선 복습할 수 있습니다.</p><div class="row"><select id="filter"><option value="all">전 범위</option></select><select id="qmode"><option value="all">전체 문제</option><option value="wrong">틀린 문제 우선</option></select><button id="newq" class="mainbtn">새 문제</button></div><div class="card"><h3>무한 변형 계산 퀴즈 · API 비용 0원</h3><p class="muted">문항 유형별로 수치를 새로 생성하고 정답을 자동 계산합니다. MSE, 경사하강법, 혼동행렬, kNN 거리 연습을 지원합니다.</p>
+<div class="row"><select id="genType"><option value="random">랜덤 유형</option><option value="mse">MSE</option><option value="gradient">경사하강법</option><option value="precision">정밀도·재현율</option><option value="distance">kNN 거리</option></select><button id="regen" class="mainbtn">새 계산 문제</button></div>
+<div id="genQuestion"></div><input id="genAnswer" type="number" step="any" placeholder="숫자로 답변" style="background:#111d2d;color:#fff;border:1px solid #536b87;padding:12px;border-radius:9px;max-width:260px"><button id="genGrade">채점</button><div id="genResult"></div></div><div id="question" class="card"></div><p id="qstatus" class="muted"></p></section>
 <section id="cards"><h2>암기 플래시카드</h2><div class="row"><select id="flashfilter"><option value="all">전체 주차</option></select><button id="flashnext" class="mainbtn">다음 카드</button></div><div class="card"><p id="front"></p><div id="back" style="display:none"></div><button id="flip">정답 보기 / 다시 숨기기</button></div></section>
 <section id="tutor"><h2>AI 교수 · 내 답변 피드백</h2><div class="card"><p>질문 또는 직접 푼 답안, 대화록을 입력해 주세요. 입력 내용은 이 페이지에서 자동으로 외부 서버에 전송되지 않습니다. <b>사용자가 직접 '복사'를 누른 뒤 ChatGPT에 붙여넣어 전송</b>해야 답변을 받을 수 있습니다.</p><label for="mode">피드백 유형</label><select id="mode"><option value="grade">내 답안 채점</option><option value="conversation">학습 대화록 분석</option><option value="explain">개념 질문</option><option value="mock">추가 예상문제 요청</option></select><textarea id="message" placeholder="예: MSE가 작을수록 언제나 좋은 모델이라고 생각합니다. 맞는지 검토해주세요."></textarea><div class="row"><button class="mainbtn" id="copyq">교수 프롬프트 복사</button><button id="openai">ChatGPT 열기 ↗</button></div><p id="copyhint" class="muted"></p></div><div class="card"><h3>피드백 기준</h3><p>개념 정확도 · 수식/코드 논리 · 오개념 · 계산 실수 · 보완 개념 · 확인문제. 반드시 학습자가 제출한 텍스트에 근거하며, 실제 시험 출제 가능성을 사실처럼 단정하지 않습니다.</p></div></section>
 <section id="record"><h2>내 학습 기록</h2><div id="stats" class="card"></div><div id="history" class="card"></div><button id="export">학습 기록 다운로드 (JSON)</button><button id="clear">내 기록 삭제</button><p class="muted">이 기록은 기본적으로 지금 사용하는 브라우저에만 저장됩니다. 사이트 소유자나 다른 학습자가 자동으로 열람할 수 없습니다.</p></section>
@@ -83,12 +85,61 @@ const q=Q[qid],opts=shuffle(q[2].map((x,i)=>[x,i]));document.getElementById("que
 document.querySelectorAll(".answer").forEach(b=>b.onclick=()=>answer(+b.dataset.choice));document.getElementById("qstatus").textContent="선택지 하나를 골라 답을 제출하세요."}
 function answer(i){if(answered)return;answered=true;const q=Q[qid],good=i===q[3];progress.attempts.push({id:qid,correct:good,at:new Date().toISOString()});if(!good)progress.missed[qid]=(progress.missed[qid]||0)+1;else progress.missed[qid]=Math.max(0,(progress.missed[qid]||0)-1);save();document.querySelectorAll(".answer").forEach(b=>{b.disabled=true;if(+b.dataset.choice===q[3])b.style.borderColor="#6fd9a1";if(+b.dataset.choice===i&&!good)b.style.borderColor="#ff8181"});document.getElementById("feedback").innerHTML='<p class="'+(good?'good':'bad')+'"><b>'+(good?'정답':'오답')+'</b> · '+q[4]+'</p><button id="goNext" class="mainbtn">다음 문제 →</button>';document.getElementById("goNext").onclick=newQuestion;document.getElementById("qstatus").textContent="이 브라우저에 결과가 저장되었습니다."}
 document.getElementById("newq").onclick=newQuestion;document.getElementById("filter").onchange=newQuestion;document.getElementById("qmode").onchange=newQuestion;newQuestion();
+
+const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+let gen=null,genCount=0;
+function generateMath(){
+ const types=["mse","gradient","precision","distance"];
+ const t=document.getElementById("genType").value;
+ const kind=t==="random"?types[rand(0,3)]:t;
+ let question="",answer=0,explain="",week=4;
+ if(kind==="mse"){
+  const y=Array.from({length:3},()=>rand(1,9));
+  const pred=y.map(v=>v+rand(-3,3));
+  const sq=y.map((v,i)=>(v-pred[i])**2);
+  answer=sq.reduce((a,b)=>a+b,0)/3;
+  question="실제값 ["+y.join(", ")+"], 예측값 ["+pred.join(", ")+"]일 때 MSE는? (소수 둘째 자리)";
+  explain="MSE = ("+sq.join(" + ")+") / 3 = "+answer.toFixed(2);week=4;
+ }else if(kind==="gradient"){
+  const w=rand(-6,6),grad=rand(-8,8)||3,step=[0.1,0.2,0.5][rand(0,2)];
+  answer=w-step*grad;
+  question="가중치 w="+w+", 학습률="+step+", 손실함수 기울기="+grad+"일 때 경사하강법으로 갱신한 w는? (소수 둘째 자리)";
+  explain="w(new) = w(old) − 학습률 × 기울기 = "+w+" − "+step+" × ("+grad+") = "+answer.toFixed(2);week=5;
+ }else if(kind==="precision"){
+  const tp=rand(2,15),fp=rand(1,9),fn=rand(1,9),metric=rand(0,1)?"정밀도":"재현율";
+  answer=metric==="정밀도"?tp/(tp+fp):tp/(tp+fn);
+  question="TP="+tp+", FP="+fp+", FN="+fn+"일 때 "+metric+"를 소수 둘째 자리까지 계산하시오.";
+  explain=metric+" = "+tp+"/("+tp+"+"+(metric==="정밀도"?fp:fn)+") = "+answer.toFixed(2);week=7;
+ }else{
+  const x1=rand(-5,5),y1=rand(-5,5),dx=rand(1,8),dy=rand(1,8),x2=x1+dx,y2=y1+dy;
+  answer=Math.sqrt(dx*dx+dy*dy);
+  question="두 점 A("+x1+","+y1+"), B("+x2+","+y2+")의 유클리드 거리는? (소수 둘째 자리)";
+  explain="거리 = √(("+x2+"−"+x1+")² + ("+y2+"−"+y1+")²) = √"+(dx*dx+dy*dy)+" ≈ "+answer.toFixed(2);week=10;
+ }
+ gen={question,answer,explain,week};genCount++;
+ document.getElementById("genQuestion").innerHTML="<p><span class='chip'>"+week+"주차</span> 문제 #"+genCount+"</p><h3>"+question+"</h3>";
+ document.getElementById("genAnswer").value="";
+ document.getElementById("genResult").textContent="";
+}
+document.getElementById("regen").onclick=generateMath;
+document.getElementById("genType").onchange=generateMath;
+document.getElementById("genGrade").onclick=()=>{
+ if(!gen)return;
+ const raw=document.getElementById("genAnswer").value;
+ if(raw.trim()===""){document.getElementById("genResult").textContent="답을 입력하세요.";return}
+ const correct=Math.abs(Number(raw)-Number(gen.answer.toFixed(2)))<0.005;
+ const item={id:-1,week:gen.week,question:gen.question,correct,at:new Date().toISOString()};
+ progress.attempts.push(item);save();
+ document.getElementById("genResult").innerHTML="<p class='"+(correct?"good":"bad")+"'>"+(correct?"정답입니다.":"오답입니다.")+"</p><p>"+gen.explain+"</p>";
+};
+generateMath();
+
 let ci=0;function flash(){let pool=W.filter(w=>document.getElementById("flashfilter").value==="all"||w[0]==document.getElementById("flashfilter").value);if(!pool.length)return;let w=pool[ci%pool.length];document.getElementById("front").textContent=w[0]+"주차: "+w[1]+" — 핵심 내용은?";document.getElementById("back").textContent=w[4];document.getElementById("back").style.display="none"}
 document.getElementById("flashnext").onclick=()=>{ci++;flash()};document.getElementById("flashfilter").onchange=()=>{ci=0;flash()};document.getElementById("flip").onclick=()=>{let x=document.getElementById("back");x.style.display=x.style.display==="none"?"block":"none"};flash();
 function promptText(){const m=document.getElementById("mode").value,mode={grade:"답안을 채점하고 논리적 오류·오개념·보완 문제를 제시해줘.",conversation:"아래 학습 대화록을 분석하여 개념 이해 정도, 잘못된 추론, 반복 실수, 다음 학습 우선순위를 근거 문장과 함께 피드백해줘.",explain:"질문을 직관-정의-수식-예제-확인문제 순서로 설명해줘.",mock:"입력된 범위를 토대로 시험 예상문제를 만들고 정답은 나중에 공개해줘."};return "너는 대학교 기계학습의 이해 교수이자 시험 대비 튜터다. 업로드 강의자료가 있다면 그것을 우선하며, 없으면 일반적인 기계학습 지식임을 명시해라. 추측은 구분하고 공식과 계산을 검증해라. "+mode[m]+"\n\n[학습자 입력]\n"+document.getElementById("message").value}
 document.getElementById("copyq").onclick=async()=>{if(!document.getElementById("message").value.trim()){alert("질문 또는 대화록을 입력하세요.");return}try{await navigator.clipboard.writeText(promptText());document.getElementById("copyhint").textContent="프롬프트 복사 완료. ChatGPT 창에 붙여넣고 전송하세요."}catch(e){document.getElementById("copyhint").textContent="브라우저 복사 권한이 없어요. 내용을 직접 복사하세요.";document.getElementById("message").focus();document.getElementById("message").select()}};
 document.getElementById("openai").onclick=()=>window.open("https://chatgpt.com/","_blank","noopener");
-function renderHistory(){let a=progress.attempts,correct=a.filter(x=>x.correct).length;document.getElementById("stats").innerHTML='<h3>누적 학습 결과</h3><p>완료 주차: '+progress.done.length+' / '+W.length+' · 푼 문제: '+a.length+' · 정답률: '+(a.length?Math.round(correct/a.length*100):0)+'%</p>';document.getElementById("history").innerHTML='<h3>최근 문제 기록</h3>'+(a.length?a.slice(-20).reverse().map(x=>'<p>'+(x.correct?'✅':'❌')+' '+Q[x.id][0]+'주차 · '+Q[x.id][1]+'</p>').join(''):'<p>아직 푼 문제가 없습니다.</p>')}
+function renderHistory(){let a=progress.attempts,correct=a.filter(x=>x.correct).length;document.getElementById("stats").innerHTML='<h3>누적 학습 결과</h3><p>완료 주차: '+progress.done.length+' / '+W.length+' · 푼 문제: '+a.length+' · 정답률: '+(a.length?Math.round(correct/a.length*100):0)+'%</p>';document.getElementById("history").innerHTML='<h3>최근 문제 기록</h3>'+(a.length?a.slice(-20).reverse().map(x=>'<p>'+(x.correct?'✅':'❌')+' '+(x.id===-1?x.week:Q[x.id][0])+'주차 · '+(x.id===-1?x.question:Q[x.id][1])+'</p>').join(''):'<p>아직 푼 문제가 없습니다.</p>')}
 document.getElementById("export").onclick=()=>{let u=URL.createObjectURL(new Blob([JSON.stringify(progress,null,2)],{type:"application/json"}));let a=document.createElement("a");a.href=u;a.download="ml-study-progress.json";a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)};
 document.getElementById("clear").onclick=()=>{if(confirm("이 브라우저의 학습 기록을 삭제할까요?")){localStorage.removeItem("ml-progress-v3");location.reload()}};
 </script></body></html>
