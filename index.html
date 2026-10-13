@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ML Study Lab | 기계학습의 이해</title><meta name="description" content="주차별 기계학습 요약, 시험 대비, 반복 퀴즈, AI 피드백">
+<style>
+:root{font-family:system-ui,"Malgun Gothic",sans-serif;color:#edf3fb;background:#101725;color-scheme:dark}*{box-sizing:border-box}
+body{margin:0}header{background:#172438;border-bottom:1px solid #344761;padding:16px 5%}header strong{font-size:22px}header small{display:block;color:#a9bcce}main{max-width:1080px;margin:auto;padding:25px 18px}
+h1{font-size:29px;margin:0 0 8px}h2{font-size:21px;margin:5px 0 13px}p{line-height:1.65}a{color:#92ceff}
+.hero{background:linear-gradient(105deg,#1e4168,#19304d);padding:24px;border:1px solid #466583;border-radius:16px}
+nav{display:flex;gap:7px;flex-wrap:wrap;margin:18px 0}button,select,textarea,input{font:inherit}button,select{background:#263c58;border:1px solid #4b6789;color:white;border-radius:9px;padding:10px 13px;cursor:pointer}button:hover{background:#36618b}button.active,.mainbtn{background:#397dc3;border-color:#397dc3}
+section{display:none}section.active{display:block}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(275px,1fr));gap:12px}
+.card{background:#1a283b;border:1px solid #344b66;border-radius:13px;padding:17px;margin-bottom:12px}
+.card p{color:#c4d2e3}.chip{font-size:12px;color:#c5e9ff;background:#284563;border-radius:25px;padding:4px 9px}
+.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}textarea{width:100%;min-height:125px;border-radius:12px;background:#111d2d;border:1px solid #536b87;color:white;padding:12px}
+.answer{display:block;width:100%;text-align:left;margin:9px 0}details{margin:10px 0}summary{cursor:pointer;color:#b1dfff}
+.good{color:#8ee6b9}.bad{color:#ff9d9d}.muted{color:#a3b7cb;font-size:14px}
+footer{padding:30px;text-align:center;color:#9ab0c6;border-top:1px solid #33475d}label{display:inline-block;margin:8px}
+</style></head><body>
+<header><strong>📘 ML Study Lab</strong><small>기계학습의 이해 · 강의 요약 · 시험 대비 · 반복 퀴즈 · 튜터 피드백</small></header>
+<main><div class="hero"><h1>기계학습의 이해, 단기 완성</h1><p>주차별 개념을 확인하고 시험 문제를 반복 학습하세요. 실수한 이유는 학습 기록으로 남기고 AI 교수에게 피드백을 요청할 수 있습니다.</p><div class="row"><span class="chip">총 14개 주차</span><span class="chip">반복 출제</span><span class="chip">브라우저별 학습 기록</span></div></div>
+<nav id="nav"><button class="active" data-tab="weeks">강의록 요약</button><button data-tab="exam">시험 대비</button><button data-tab="quiz">실전 퀴즈</button><button data-tab="cards">플래시카드</button><button data-tab="tutor">AI 교수·대화 피드백</button><button data-tab="record">학습 기록</button></nav>
+<section id="weeks" class="active"><h2>주차별 강의록 요약</h2><p class="muted">강의 구성에 맞춘 핵심 개념 요약입니다. 교수자가 실제 출제를 예고했다는 뜻은 아닙니다.</p><div id="weekgrid" class="grid"></div></section>
+<section id="exam"><h2>시험 대비 핵심 정리</h2><div id="examgrid" class="grid"></div><div class="card"><h3>학습 전략</h3><p>① 개념을 자신의 말로 설명 → ② 수식의 변수 의미와 계산 과정 확인 → ③ 실습 코드의 입력·출력 설명 → ④ 오답 반복. A 우선순위는 계산과 개념 연결을 먼저 학습할 추천 영역입니다.</p></div></section>
+<section id="quiz"><h2>실전 랜덤 퀴즈</h2><p class="muted">문제은행에서 매번 무작위로 뽑고 보기 순서도 섞습니다. 정답 제출 뒤 즉시 피드백하며, 틀린 문제를 우선 복습할 수 있습니다.</p><div class="row"><select id="filter"><option value="all">전 범위</option></select><select id="qmode"><option value="all">전체 문제</option><option value="wrong">틀린 문제 우선</option></select><button id="newq" class="mainbtn">새 문제</button></div><div id="question" class="card"></div><p id="qstatus" class="muted"></p></section>
+<section id="cards"><h2>암기 플래시카드</h2><div class="row"><select id="flashfilter"><option value="all">전체 주차</option></select><button id="flashnext" class="mainbtn">다음 카드</button></div><div class="card"><p id="front"></p><div id="back" style="display:none"></div><button id="flip">정답 보기 / 다시 숨기기</button></div></section>
+<section id="tutor"><h2>AI 교수 · 내 답변 피드백</h2><div class="card"><p>질문 또는 직접 푼 답안, 대화록을 입력해 주세요. 입력 내용은 이 페이지에서 자동으로 외부 서버에 전송되지 않습니다. <b>사용자가 직접 '복사'를 누른 뒤 ChatGPT에 붙여넣어 전송</b>해야 답변을 받을 수 있습니다.</p><label for="mode">피드백 유형</label><select id="mode"><option value="grade">내 답안 채점</option><option value="conversation">학습 대화록 분석</option><option value="explain">개념 질문</option><option value="mock">추가 예상문제 요청</option></select><textarea id="message" placeholder="예: MSE가 작을수록 언제나 좋은 모델이라고 생각합니다. 맞는지 검토해주세요."></textarea><div class="row"><button class="mainbtn" id="copyq">교수 프롬프트 복사</button><button id="openai">ChatGPT 열기 ↗</button></div><p id="copyhint" class="muted"></p></div><div class="card"><h3>피드백 기준</h3><p>개념 정확도 · 수식/코드 논리 · 오개념 · 계산 실수 · 보완 개념 · 확인문제. 반드시 학습자가 제출한 텍스트에 근거하며, 실제 시험 출제 가능성을 사실처럼 단정하지 않습니다.</p></div></section>
+<section id="record"><h2>내 학습 기록</h2><div id="stats" class="card"></div><div id="history" class="card"></div><button id="export">학습 기록 다운로드 (JSON)</button><button id="clear">내 기록 삭제</button><p class="muted">이 기록은 기본적으로 지금 사용하는 브라우저에만 저장됩니다. 사이트 소유자나 다른 학습자가 자동으로 열람할 수 없습니다.</p></section>
+</main><footer>ML Study Lab · 무료 정적 학습 사이트 · AI 피드백은 ChatGPT 별도 이용</footer>
+<script>
+const W=[
+[1,"기계학습 개요","지도·비지도학습, 회귀와 분류, 데이터·특징·레이블","A","지도학습에는 입력과 정답(레이블)이 주어지고, 비지도학습은 정답 레이블 없이 패턴을 찾는다."],
+[2,"파이썬과 데이터 표현","배열, 행렬, 벡터, 데이터프레임, NumPy","B","데이터프레임은 행과 열의 2차원 표이며, 행렬의 차원과 로봇 위치의 공간 차원은 다른 개념이다."],
+[3,"선형대수 기초","내적, 행렬곱, 전치, 특성 벡터","A","행렬곱 AB가 가능하려면 A의 열 수와 B의 행 수가 같아야 한다."],
+[4,"회귀와 비용함수","선형회귀, 회귀계수, 평균제곱오차(MSE)","A","MSE=Σ(yᵢ−ŷᵢ)²/n. 오차를 제곱하므로 큰 오차에 더 큰 페널티를 준다."],
+[5,"경사하강법·모델 학습","기울기, 학습률, 손실 최소화","A","기울기의 반대 방향으로 가중치를 갱신한다. 학습률이 지나치게 크면 발산할 수 있다."],
+[6,"데이터 준비와 모델 검증","학습/평가 분할, 정규화, 과적합","A","훈련 성능이 높아도 테스트 성능이 낮다면 일반화 문제가 의심된다."],
+[7,"분류의 원리","분류 문제, 혼동행렬, 정확도·정밀도·재현율","A","정밀도=TP/(TP+FP), 재현율=TP/(TP+FN). 불균형 자료에서는 정확도만으로 부족하다."],
+[9,"베이즈 분류","조건부확률, 베이즈 정리, 나이브 베이즈","B","P(A|B)=P(B|A)P(A)/P(B). 나이브 베이즈는 클래스가 주어졌을 때 특성의 조건부 독립을 가정한다."],
+[10,"최근접 이웃(kNN)","거리 척도, 이웃 수 k, 분류","A","새 입력에서 가까운 k개 훈련 샘플의 레이블을 통해 분류한다. 특성 스케일에 민감하다."],
+[11,"신경망 기초","퍼셉트론, 가중합, 활성화함수","A","뉴런은 입력의 가중합에 편향을 더한 뒤 활성화함수를 적용한다."],
+[12,"신경망 학습","오차역전파, 학습률, 과적합","A","역전파는 연쇄법칙을 이용해 손실의 파라미터별 기울기를 계산한다."],
+[13,"서포트 벡터 머신","결정경계, 마진, 커널","B","SVM은 분리 경계의 마진을 크게 하는 방향으로 학습하며, 커널로 비선형 경계를 다룰 수 있다."],
+[14,"군집화","k-means, 군집 중심, 비지도학습","B","k-means는 각 점을 가까운 중심에 할당한 뒤 중심을 다시 계산하는 과정을 반복한다."],
+[15,"종합 복습과 응용","모델 선택, 평가 지표, 알고리즘 비교","A","문제 유형과 데이터 특성에 따라 모델·평가 지표를 선택해야 한다."]
+];
+const Q=[
+[1,"지도학습에 일반적으로 필요한 것은?",["정답 레이블","군집 중심","거리 임계값","잠재변수만"],0,"지도학습은 입력과 그에 대응하는 정답을 활용한다."],
+[1,"연속값을 예측하는 작업은?",["회귀","이진 분류","군집화","차원 축소"],0,"주택 가격이나 온도와 같은 연속값을 예측한다."],
+[2,"pandas DataFrame의 표 구조는?",["행과 열","한 개 축만","항상 3차원","항상 정사각형"],0,"표는 행과 열로 구성된다."],
+[3,"(2×3) 행렬과 곱할 수 있는 행렬은?",["3×4","2×4","2×3","4×2"],0,"안쪽 차원인 3이 일치해야 한다."],
+[3,"두 벡터의 내적 결과는 일반적으로?",["스칼라","항상 행렬","항상 3차원 벡터","문자열"],0,"동일 길이 실수 벡터의 내적은 스칼라다."],
+[4,"y=[1,3], 예측=[2,1]일 때 MSE는?",["2.5","1.5","5","0.5"],0,"제곱오차는 1과 4이고 평균은 2.5다."],
+[4,"MSE에서 오차를 제곱하는 효과는?",["큰 오차에 높은 비용","부호 유지","항상 0","표본 수 무시"],0,"오차를 제곱하면 음수/양수의 부호가 없어지고 큰 오차를 강조한다."],
+[5,"경사하강법의 기본 갱신 방향은?",["기울기 반대 방향","기울기와 같은 방향","무작위로만 이동","항상 원점 방향"],0,"손실을 줄이려는 국소적인 갱신이다."],
+[5,"학습률이 너무 클 때 생길 수 있는 현상은?",["발산이나 진동","항상 정확도 향상","가중치가 0으로 고정","데이터 자동 증대"],0,"지나치게 큰 보폭은 최솟값을 지나칠 수 있다."],
+[6,"훈련 오차가 매우 작고 테스트 오차가 큰 경우는?",["과적합 가능성","무조건 최적 일반화","항상 데이터 부족 없음","평가가 필요 없음"],0,"훈련 데이터에만 잘 맞는 상태일 수 있다."],
+[6,"테스트 데이터가 하는 일은?",["새 데이터 일반화 성능 평가","훈련 가중치 직접 갱신","항상 레이블 생성","무조건 데이터 정규화"],0,"일반화 성능을 평가하는 데 사용한다."],
+[7,"TP=8, FP=2일 때 정밀도는?",["0.8","0.2","0.6","1.0"],0,"정밀도=8/(8+2)=0.8이다."],
+[7,"TP=6, FN=4일 때 재현율은?",["0.6","0.4","0.75","1.0"],0,"재현율=6/(6+4)=0.6이다."],
+[9,"나이브 베이즈의 핵심 가정은?",["클래스 조건부 특성 독립","특성 간 완전 상관","모든 입력이 정규분포","레이블이 없음"],0,"독립 가정은 클래스가 주어졌을 때의 조건부 독립이다."],
+[10,"kNN에서 특성 스케일링이 중요한 이유는?",["거리 계산에 영향을 주기 때문","레이블을 제거하기 때문","k가 자동으로 0이 되기 때문","거리 계산을 하지 않기 때문"],0,"큰 수치 범위의 특성이 거리를 지배할 수 있다."],
+[10,"kNN에서 k=1인 경우는?",["가장 가까운 한 점을 이용","모든 점의 평균만 사용","거리와 무관하게 결정","항상 회귀만 가능"],0,"가장 가까운 이웃 한 개를 참고한다."],
+[11,"뉴런의 편향(bias) 역할은?",["결정경계를 이동","입력 개수 삭제","데이터셋 분할","정답 레이블 복사"],0,"편향은 가중합에 더해지는 상수항이다."],
+[11,"활성화함수를 쓰는 주요 이유는?",["비선형성 도입","행렬곱 제거","항상 완전 학습","입력 정렬"],0,"비선형성을 통해 복잡한 관계를 표현할 수 있다."],
+[12,"오차역전파에서 활용하는 미분 규칙은?",["연쇄법칙","로피탈 법칙만","삼각형 부등식","중심극한정리"],0,"연쇄법칙으로 매개변수별 기울기를 전달한다."],
+[13,"SVM의 마진은 무엇과 관련되는가?",["결정경계와 가까운 점 사이 거리","학습 epoch 수","레이블 개수","MSE의 제곱근만"],0,"SVM은 마진을 최대화하는 경계를 찾는다."],
+[14,"k-means의 대표적인 학습 방식은?",["할당과 중심 갱신 반복","레이블의 직접 복사","역전파만 사용","항상 베이즈 정리 적용"],0,"군집 할당과 중심 재계산을 반복한다."],
+[15,"불균형 이진 분류에서 정확도 외 함께 살필 지표는?",["정밀도와 재현율","학습률만","입력 변수 이름","데이터 파일 크기"],0,"소수 클래스 성능은 정확도만으로 파악하기 어렵다."]
+];
+let progress=JSON.parse(localStorage.getItem("ml-progress-v3")||'{"done":[],"attempts":[],"missed":{}}');
+function save(){localStorage.setItem("ml-progress-v3",JSON.stringify(progress))}
+function show(id){document.querySelectorAll("section").forEach(x=>x.classList.toggle("active",x.id===id));document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("active",x.dataset.tab===id));if(id==="record")renderHistory()}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>show(b.dataset.tab));
+document.getElementById("weekgrid").innerHTML=W.map(w=>'<div class="card"><div class="row"><span class="chip">'+w[0]+'주차</span><span class="chip">'+w[3]+' 우선</span></div><h3>'+w[1]+'</h3><p>'+w[2]+'</p><details><summary>핵심 요약 보기</summary><p>'+w[4]+'</p></details><label><input type="checkbox" class="done" data-week="'+w[0]+'" '+(progress.done.includes(w[0])?'checked':'')+'> 학습 완료</label></div>').join('');
+document.querySelectorAll(".done").forEach(x=>x.onchange=()=>{const n=+x.dataset.week;progress.done=progress.done.filter(v=>v!==n);if(x.checked)progress.done.push(n);save()});
+document.getElementById("examgrid").innerHTML=W.map(w=>'<div class="card"><span class="chip">'+w[0]+'주차 · '+w[3]+'</span><h3>'+w[1]+'</h3><p>'+w[4]+'</p></div>').join('');
+for(const w of W){for(const id of ["filter","flashfilter"]){const o=document.createElement("option");o.value=w[0];o.textContent=w[0]+"주차 "+w[1];document.getElementById(id).appendChild(o)}}
+function shuffle(a){return a.map(v=>({v,r:Math.random()})).sort((a,b)=>a.r-b.r).map(x=>x.v)}
+let qid=-1,answered=false,last=-1;
+function newQuestion(){let pool=Q.map((q,i)=>i).filter(i=>document.getElementById("filter").value==="all"||Q[i][0]==document.getElementById("filter").value);if(document.getElementById("qmode").value==="wrong"){let bad=pool.filter(i=>progress.missed[i]>0);if(bad.length)pool=bad}
+if(!pool.length){document.getElementById("question").textContent="이 범위에 등록된 문제가 없습니다.";return}
+let possible=pool.filter(i=>i!==last);qid=(possible.length?possible:pool)[Math.floor(Math.random()*(possible.length?possible:pool).length)];last=qid;answered=false;
+const q=Q[qid],opts=shuffle(q[2].map((x,i)=>[x,i]));document.getElementById("question").innerHTML='<span class="chip">'+q[0]+'주차</span><h3>'+q[1]+'</h3><div id="opts">'+opts.map(([s,i])=>'<button class="answer" data-choice="'+i+'">'+s+'</button>').join('')+'</div><div id="feedback"></div>';
+document.querySelectorAll(".answer").forEach(b=>b.onclick=()=>answer(+b.dataset.choice));document.getElementById("qstatus").textContent="선택지 하나를 골라 답을 제출하세요."}
+function answer(i){if(answered)return;answered=true;const q=Q[qid],good=i===q[3];progress.attempts.push({id:qid,correct:good,at:new Date().toISOString()});if(!good)progress.missed[qid]=(progress.missed[qid]||0)+1;else progress.missed[qid]=Math.max(0,(progress.missed[qid]||0)-1);save();document.querySelectorAll(".answer").forEach(b=>{b.disabled=true;if(+b.dataset.choice===q[3])b.style.borderColor="#6fd9a1";if(+b.dataset.choice===i&&!good)b.style.borderColor="#ff8181"});document.getElementById("feedback").innerHTML='<p class="'+(good?'good':'bad')+'"><b>'+(good?'정답':'오답')+'</b> · '+q[4]+'</p><button id="goNext" class="mainbtn">다음 문제 →</button>';document.getElementById("goNext").onclick=newQuestion;document.getElementById("qstatus").textContent="이 브라우저에 결과가 저장되었습니다."}
+document.getElementById("newq").onclick=newQuestion;document.getElementById("filter").onchange=newQuestion;document.getElementById("qmode").onchange=newQuestion;newQuestion();
+let ci=0;function flash(){let pool=W.filter(w=>document.getElementById("flashfilter").value==="all"||w[0]==document.getElementById("flashfilter").value);if(!pool.length)return;let w=pool[ci%pool.length];document.getElementById("front").textContent=w[0]+"주차: "+w[1]+" — 핵심 내용은?";document.getElementById("back").textContent=w[4];document.getElementById("back").style.display="none"}
+document.getElementById("flashnext").onclick=()=>{ci++;flash()};document.getElementById("flashfilter").onchange=()=>{ci=0;flash()};document.getElementById("flip").onclick=()=>{let x=document.getElementById("back");x.style.display=x.style.display==="none"?"block":"none"};flash();
+function promptText(){const m=document.getElementById("mode").value,mode={grade:"답안을 채점하고 논리적 오류·오개념·보완 문제를 제시해줘.",conversation:"아래 학습 대화록을 분석하여 개념 이해 정도, 잘못된 추론, 반복 실수, 다음 학습 우선순위를 근거 문장과 함께 피드백해줘.",explain:"질문을 직관-정의-수식-예제-확인문제 순서로 설명해줘.",mock:"입력된 범위를 토대로 시험 예상문제를 만들고 정답은 나중에 공개해줘."};return "너는 대학교 기계학습의 이해 교수이자 시험 대비 튜터다. 업로드 강의자료가 있다면 그것을 우선하며, 없으면 일반적인 기계학습 지식임을 명시해라. 추측은 구분하고 공식과 계산을 검증해라. "+mode[m]+"\n\n[학습자 입력]\n"+document.getElementById("message").value}
+document.getElementById("copyq").onclick=async()=>{if(!document.getElementById("message").value.trim()){alert("질문 또는 대화록을 입력하세요.");return}try{await navigator.clipboard.writeText(promptText());document.getElementById("copyhint").textContent="프롬프트 복사 완료. ChatGPT 창에 붙여넣고 전송하세요."}catch(e){document.getElementById("copyhint").textContent="브라우저 복사 권한이 없어요. 내용을 직접 복사하세요.";document.getElementById("message").focus();document.getElementById("message").select()}};
+document.getElementById("openai").onclick=()=>window.open("https://chatgpt.com/","_blank","noopener");
+function renderHistory(){let a=progress.attempts,correct=a.filter(x=>x.correct).length;document.getElementById("stats").innerHTML='<h3>누적 학습 결과</h3><p>완료 주차: '+progress.done.length+' / '+W.length+' · 푼 문제: '+a.length+' · 정답률: '+(a.length?Math.round(correct/a.length*100):0)+'%</p>';document.getElementById("history").innerHTML='<h3>최근 문제 기록</h3>'+(a.length?a.slice(-20).reverse().map(x=>'<p>'+(x.correct?'✅':'❌')+' '+Q[x.id][0]+'주차 · '+Q[x.id][1]+'</p>').join(''):'<p>아직 푼 문제가 없습니다.</p>')}
+document.getElementById("export").onclick=()=>{let u=URL.createObjectURL(new Blob([JSON.stringify(progress,null,2)],{type:"application/json"}));let a=document.createElement("a");a.href=u;a.download="ml-study-progress.json";a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)};
+document.getElementById("clear").onclick=()=>{if(confirm("이 브라우저의 학습 기록을 삭제할까요?")){localStorage.removeItem("ml-progress-v3");location.reload()}};
+</script></body></html>
